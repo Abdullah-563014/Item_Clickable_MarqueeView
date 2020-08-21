@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ItemClickAbleMarqueeView">
+        <attr name="marqueeview_repet_type" format="enum">
+            <enum name="repet_oncetime" value="0"/><!-- Play once -->
+            <enum name="repet_interval" value="1"/>  <!--Play continuously, end the loop and continue to the next loop-->
+            <enum name="repet_continuous" value="2"/>  <!--Play continuously and continue to the next loop directly to the end-->
+        </attr>
+
+        <attr name="marqueeview_text_distance" format="integer"/><!--The distance between each item-->
+        <attr name="marqueeview_text_startlocationdistance" format="float"/><!--The starting position is between 0 and 1 as a percentage from the left of the control -->
+
+        <attr name="marqueeview_text_speed" format="float"/><!--The playback speed is the text scroll speed-->
+        <attr name="marqueeview_text_color" format="color|reference"/><!-- Text color -->
+        <attr name="marqueeview_text_size" format="float"/><!-- font size -->
+
+        <attr name="marqueeview_isclickalbe_stop" format="boolean"/><!--Whether to click pause-->
+        <attr name="marqueeview_is_resetLocation" format="boolean"/><!--When changing the content again, whether to initialize the position, the default is true, change-->
+    </declare-styleable>
+</resources>
