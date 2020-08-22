@@ -7,11 +7,12 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.acoder.itemclickable.itemclickablemarqueeview.ItemClickAbleMarqueeView;
+import com.acoder.itemclickable.itemclickablemarqueeview.interfaces.ItemClickListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements ItemClickListener {
 
     private ItemClickAbleMarqueeView marqueeView;
     private List<String> list=new ArrayList<>();
@@ -41,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void initMarqueeView() {
         marqueeView.setContent(list);
-        marqueeView.setOnClickListener(this);
+        marqueeView.setOnMarqueeItemClickListener("bangladesh prothidin",this);
     }
 
     private void initAll() {
@@ -49,12 +50,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
-    public void onClick(View v) {
-        switch (v.getId()){
-            case R.id.itemClickAbleMarqueeViewId:
-                Toast.makeText(this, "marquee item clicked at position "+marqueeView.getItemClickedPosition(), Toast.LENGTH_SHORT).show();
-                break;
-        }
+    public void onMarqueeItemClickListener(String tag, int position) {
+        Toast.makeText(this, "Tag is:- "+tag+" and position is "+position, Toast.LENGTH_SHORT).show();
     }
 
 

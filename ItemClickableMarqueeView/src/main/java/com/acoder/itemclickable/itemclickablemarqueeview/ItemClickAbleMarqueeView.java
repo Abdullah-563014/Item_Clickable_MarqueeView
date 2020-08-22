@@ -10,13 +10,18 @@ import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.TintTypedArray;
 
+import com.acoder.itemclickable.itemclickablemarqueeview.interfaces.ItemClickListener;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ItemClickAbleMarqueeView extends View implements Runnable {
 
@@ -57,6 +62,11 @@ public class ItemClickAbleMarqueeView extends View implements Runnable {
     private float textHeight;
     private List<String> temporaryList=new ArrayList<>();
     private int itemClickedPosition=0;
+    private ItemClickListener itemClickListener;
+    private Map<Integer, Float> itemWithWidth=new HashMap<>();
+    float temporaryValue=0;
+    float xPosition=0;
+    private String objectTag=null;
 
 
 
@@ -75,6 +85,7 @@ public class ItemClickAbleMarqueeView extends View implements Runnable {
         initattrs(attrs);
         initpaint();
         initClick();
+        initTouch();
     }
 
     @Override
@@ -85,17 +96,20 @@ public class ItemClickAbleMarqueeView extends View implements Runnable {
                 xLocation = xLocation - speed;
                 postInvalidate();//Redraw the view every 10 milliseconds
 
-                float temporaryListContentWidth=getWidth()*startLocationDistance;
-                String temporaryString="";
-                for (int i=0; i<temporaryList.size(); i++){
-                    if (temporaryListContentWidth>=(-xLocation)){
-                        itemClickedPosition=i;
-                        i=temporaryList.size()-1;
-                    }
-                    temporaryString=temporaryString+temporaryList.get(i);
-                    temporaryListContentWidth=getContentWidth(temporaryString)+textDistance1;
+
+                if (xLocation>=0){
+                    temporaryValue=0;
                 }
-//                Log.d(TAG, "onDraw:= " + contentWidth + "----" + (-xLocation) + "----" + temporaryListContentWidth+"----"+itemClickedPosition+"----"+getContentWidth(black_count)+"----"+textDistance1+"---"+textdistance);
+                float totalItemLength=0;
+                temporaryValue=temporaryValue+speed;
+                for (int i=0; i<itemWithWidth.size(); i++) {
+                    totalItemLength=totalItemLength+itemWithWidth.get(i);
+                    if (totalItemLength>=temporaryValue){
+                        i=itemWithWidth.size()-1;
+                    }
+                }
+
+                Log.d(TAG,"==="+totalItemLength+"==="+temporaryValue+"==="+itemClickedPosition);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -166,6 +180,53 @@ public class ItemClickAbleMarqueeView extends View implements Runnable {
     }
 
     //override function ended.
+    //=============================================
+
+
+
+    public void setOnMarqueeItemClickListener(String objectTag,ItemClickListener itemClickListener) {
+        this.objectTag=objectTag;
+        this.itemClickListener=itemClickListener;
+    }
+
+    private void getIndividualItemWidth() {
+        itemWithWidth.clear();
+        oneBlack_width = getBlacktWidth();//The width of the space
+        int textdistance2 = dp2px(textDistance1);
+        int count = (int) (textdistance2 / oneBlack_width);
+
+        for (int i=0; i<temporaryList.size(); i++) {
+            String temporaryString=temporaryList.get(i);
+            if ((temporaryList.size()-1)==i){
+                itemWithWidth.put(i,getContentWidth(temporaryString)+(getWidth()*startLocationDistance));
+            }else {
+                itemWithWidth.put(i,getContentWidth(temporaryString)+(oneBlack_width*count));
+            }
+        }
+    }
+
+    private void initTouch() {
+        setOnTouchListener(new OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction()==MotionEvent.ACTION_UP){
+                    xPosition=event.getX();
+                    float totalItemLength=0;
+                    for (int i=0; i<itemWithWidth.size(); i++) {
+                        totalItemLength=totalItemLength+itemWithWidth.get(i);
+                        if (totalItemLength>=(temporaryValue+xPosition)){
+                            itemClickedPosition=i;
+                            i=itemWithWidth.size()-1;
+                        }
+                    }
+                    if (itemClickListener!=null){
+                        itemClickListener.onMarqueeItemClickListener(objectTag,itemClickedPosition);
+                    }
+                }
+                return true;
+            }
+        });
+    }
 
     public int getItemClickedPosition() {
         return itemClickedPosition;
@@ -373,6 +434,7 @@ public class ItemClickAbleMarqueeView extends View implements Runnable {
         setTextDistance(textDistance1);
         temporaryList.clear();
         temporaryList.addAll(strings);
+        getIndividualItemWidth();
         String temString = "";
         if (strings != null && strings.size() != 0) {
             for (int i = 0; i <strings.size(); i++) {
