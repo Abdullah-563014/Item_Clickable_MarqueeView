@@ -1,0 +1,3 @@
+include ':ItemClickableMarqueeView'
+include ':app'
+rootProject.name = "Item Clickable MarqueeView"
